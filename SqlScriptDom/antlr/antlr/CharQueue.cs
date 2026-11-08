@@ -116,5 +116,12 @@ namespace antlr
 			offset = (offset + 1) & sizeLessOne;
 			nbrEntries--;
 		}
+
+		/* Remove chars from the front of the queue */
+		public void remove(int count)
+		{
+			offset = (offset + count) & sizeLessOne;
+			nbrEntries -= count;
+		}
 	}
 }
