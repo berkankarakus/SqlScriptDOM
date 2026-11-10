@@ -499,6 +499,46 @@ namespace Microsoft.SqlServer.TransactSql.ScriptDom
         }
 
         /// <summary>
+        /// Checks the bounded lookahead used by expressionWithClrElements.
+        /// </summary>
+        protected bool IsSchemaObjectTwoPartNameDoubleColon()
+        {
+            int tokenOffset = 1;
+
+            if (LA(tokenOffset) == TSql80ParserInternal.Dot)
+            {
+                tokenOffset++;
+
+                if (!IsIdentifierToken(LA(tokenOffset)))
+                    return false;
+            }
+            else if (!IsIdentifierToken(LA(tokenOffset)))
+            {
+                return false;
+            }
+
+            tokenOffset++;
+
+            if (LA(tokenOffset) == TSql80ParserInternal.Dot)
+            {
+                tokenOffset++;
+
+                if (!IsIdentifierToken(LA(tokenOffset)))
+                    return false;
+
+                tokenOffset++;
+            }
+
+            return LA(tokenOffset) == TSql80ParserInternal.DoubleColon;
+        }
+
+        private static bool IsIdentifierToken(int tokenType)
+        {
+            return tokenType == TSql80ParserInternal.Identifier
+                || tokenType == TSql80ParserInternal.QuotedIdentifier;
+        }
+
+        /// <summary>
         /// Throws an exception that won't be logged if reached the end of a batch or file.
         /// </summary>
         protected void ThrowIfEndOfFileOrBatch()

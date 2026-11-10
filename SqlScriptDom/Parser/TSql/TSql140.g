@@ -29675,7 +29675,7 @@ expressionWithClrElements [ExpressionFlags expressionFlags] returns [PrimaryExpr
 }
     :
         (
-            (schemaObjectTwoPartName DoubleColon)=>
+            {IsSchemaObjectTwoPartNameDoubleColon()}?
             vResult=udtExpression
         |
             vResult=expressionPrimary[expressionFlags]
