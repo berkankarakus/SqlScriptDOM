@@ -93,6 +93,34 @@ namespace antlr
 			bset = set_;
 		}
 
+		internal void InitializeForToken(string[] tokenNames_, IToken token_, int expecting_, bool matchNot, string fileName_)
+		{
+			tokenNames = tokenNames_;
+			token = token_;
+			tokenText = token_.getText();
+			mismatchType = matchNot ? TokenTypeEnum.NotTokenType : TokenTypeEnum.TokenType;
+			expecting = expecting_;
+			upper = 0;
+			bset = null;
+			fileName = fileName_;
+			line = token_.getLine();
+			column = token_.getColumn();
+		}
+
+		internal void InitializeForSet(string[] tokenNames_, IToken token_, BitSet set_, bool matchNot, string fileName_)
+		{
+			tokenNames = tokenNames_;
+			token = token_;
+			tokenText = token_.getText();
+			mismatchType = matchNot ? TokenTypeEnum.NotSetType : TokenTypeEnum.SetType;
+			expecting = 0;
+			upper = 0;
+			bset = set_;
+			fileName = fileName_;
+			line = token_.getLine();
+			column = token_.getColumn();
+		}
+
         protected MismatchedTokenException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }

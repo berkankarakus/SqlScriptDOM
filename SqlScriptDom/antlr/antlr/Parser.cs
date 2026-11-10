@@ -67,6 +67,9 @@ namespace antlr
 		/*Table of token type to token names */
 		protected internal string[] tokenNames;
 
+		[ThreadStatic]
+		private static MismatchedTokenException[] guessingMismatchExceptions;
+
 		private bool ignoreInvalidDebugCalls = false;
 		
 		/*Used to keep track of indentdepth for traceIn/Out */
@@ -161,7 +164,12 @@ namespace antlr
 		public virtual void  match(int t)
 		{
 			if (LA(1) != t)
+			{
+				if (inputState.guessing > 0)
+					throw GetGuessingMismatchException(inputState.guessing, tokenNames, LT(1), t, false, getFilename());
+
 				throw new MismatchedTokenException(tokenNames, LT(1), t, false, getFilename());
+			}
 			else
 				consume();
 		}
@@ -172,16 +180,52 @@ namespace antlr
 		public virtual void  match(BitSet b)
 		{
 			if (!b.member(LA(1)))
+			{
+				if (inputState.guessing > 0)
+					throw GetGuessingMismatchException(inputState.guessing, tokenNames, LT(1), b, false, getFilename());
+
 				throw new MismatchedTokenException(tokenNames, LT(1), b, false, getFilename());
+			}
 			else
 				consume();
 		}
 		public virtual void  matchNot(int t)
 		{
 			if (LA(1) == t)
+			{
+				if (inputState.guessing > 0)
+					throw GetGuessingMismatchException(inputState.guessing, tokenNames, LT(1), t, true, getFilename());
+
 				throw new MismatchedTokenException(tokenNames, LT(1), t, true, getFilename());
+			}
 			else
 				consume();
+		}
+
+		private static MismatchedTokenException GetGuessingMismatchException(
+			int guessingLevel, string[] tokenNames_, IToken token_, int expecting_, bool matchNot, string fileName_)
+		{
+			MismatchedTokenException exception = GetGuessingMismatchException(guessingLevel);
+
+			exception.InitializeForToken(tokenNames_, token_, expecting_, matchNot, fileName_);
+			return exception;
+		}
+
+		private static MismatchedTokenException GetGuessingMismatchException(
+			int guessingLevel, string[] tokenNames_, IToken token_, BitSet set_, bool matchNot, string fileName_)
+		{
+			MismatchedTokenException exception = GetGuessingMismatchException(guessingLevel);
+
+			exception.InitializeForSet(tokenNames_, token_, set_, matchNot, fileName_);
+			return exception;
+		}
+
+		private static MismatchedTokenException GetGuessingMismatchException(int guessingLevel)
+		{
+			if (guessingMismatchExceptions == null || guessingMismatchExceptions.Length <= guessingLevel)
+				Array.Resize(ref guessingMismatchExceptions, guessingLevel + 1);
+
+			return guessingMismatchExceptions[guessingLevel] ??= new MismatchedTokenException();
 		}
 
 		/*Parser error-reporting function can be overridden in subclass */
