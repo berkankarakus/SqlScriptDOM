@@ -40,7 +40,7 @@
   </Target>
   <Target Name="GLexerParserCompile" Condition="'@(GLexerParserCompile)'!=''" DependsOnTargets="CreateCsGenIntermediateOutputPath;InstallAntlr" BeforeTargets="CoreCompile" Inputs="@(GLexerParserCompile)" Outputs="@(GLexerParserCompile->'$(CsGenIntermediateOutputPath)%(filename)ParserInternal_final.cs');@(GLexerParserCompile->'$(CsGenIntermediateOutputPath)%(filename)LexerInternal_final.cs')">
     <!--Based on property we either run antlr with all warnings and errors supressed or not-->
-    <Exec Command="java -cp &quot;$(AntlrLocation)&quot; antlr.Tool -o &quot;$(CsGenIntermediateOutputPath.TrimEnd('\'))&quot; &quot;%(GLexerParserCompile.Identity)&quot; &gt; NUL 2&gt;&amp;1" Condition="'$(OutputErrorInLexerParserCompile)' == 'false' And '$(OS)' != 'Windows_NT'" />
+    <Exec Command="java -cp &quot;$(AntlrLocation)&quot; antlr.Tool -o &quot;$(CsGenIntermediateOutputPath.TrimEnd('\'))&quot; &quot;%(GLexerParserCompile.Identity)&quot; &gt; /dev/null 2&gt;&amp;1" Condition="'$(OutputErrorInLexerParserCompile)' == 'false' And '$(OS)' != 'Windows_NT'" />
     <Exec Command="java -cp &quot;$(AntlrLocation)&quot; antlr.Tool -o &quot;$(CsGenIntermediateOutputPath.TrimEnd('\'))&quot; &quot;%(GLexerParserCompile.Identity)&quot; " Condition="'$(OutputErrorInLexerParserCompile)' == 'true' And '$(OS)' != 'Windows_NT'" />
 
     <Exec Command="pwsh LexerPostProcessing.ps1 &quot;$(CsGenIntermediateOutputPath)%(GLexerParserCompile.Filename)LexerInternal.cs&quot; &quot;$(CsGenIntermediateOutputPath)%(GLexerParserCompile.Filename)LexerInternal_final.cs&quot;" Condition="'$(OS)' != 'Windows_NT'" />
